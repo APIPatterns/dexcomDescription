@@ -1,0 +1,489 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: '0000-00-00'
+tags: []
+paths:
+  /v2/users/self/calibrations:
+    get:
+      operationId: getCalibrations
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/calibration'
+                x-cadl-name: calibration[]
+  /v2/users/self/dataRange:
+    get:
+      operationId: getDataRange
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dataRange'
+  /v2/users/self/devices:
+    get:
+      operationId: getDevices
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/device'
+                x-cadl-name: device[]
+  /v2/users/self/egvs:
+    get:
+      operationId: getEGVs
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/egvs'
+  /v2/users/self/events:
+    get:
+      operationId: getEvents
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/event'
+                x-cadl-name: event[]
+  /v2/users/self/statistics:
+    post:
+      operationId: getStatistics
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statistics'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/statisticsRequest'
+              x-cadl-name: statisticsRequest[]
+components:
+  schemas:
+    alertScheduleSetting:
+      type: object
+      properties:
+        alertScheduleName:
+          type: string
+          description: Name of the alert schedule
+        isEnabled:
+          type: boolean
+          description: >-
+            Describes whether the user has the alert schedule enabled on their
+            display device
+        isDefaultSchedule:
+          type: boolean
+          description: >-
+            The default schedule is the alert schedule used in the absence of
+            other applicable alert schedules
+        startTime:
+          type: string
+          description: >-
+            The time each day when the alert schedule begins corresponds to the
+            device's display time
+        endTime:
+          type: string
+          description: >-
+            The time each day when the alert schedule begins corresponds to the
+            device's display time
+        daysOfWeek:
+          type: array
+          items:
+            type: string
+          x-cadl-name: string[]
+          description: >-
+            An array containing the days of the week this alert schedule value
+            applies to; this array must contain one (or more) of the following
+            strings in English: 'sunday', 'monday', 'tuesday', 'wednesday',
+            'thursday', 'friday' and/or 'saturday'
+      required:
+        - alertScheduleName
+        - isEnabled
+        - isDefaultSchedule
+        - startTime
+        - endTime
+        - daysOfWeek
+    calibration:
+      type: object
+      properties:
+        systemTime:
+          type: string
+        displayTime:
+          type: string
+        value:
+          type: number
+          format: float
+        unit:
+          type: string
+      required:
+        - systemTime
+        - displayTime
+        - value
+        - unit
+    dataPoint:
+      type: object
+      properties:
+        systemTime:
+          type: string
+        displayTime:
+          type: string
+      required:
+        - systemTime
+        - displayTime
+    dataRange:
+      type: object
+      properties:
+        calibrations:
+          $ref: '#/components/schemas/dataRangeItem'
+        egvs:
+          $ref: '#/components/schemas/dataRangeItem'
+        events:
+          $ref: '#/components/schemas/dataRangeItem'
+      required:
+        - calibrations
+        - egvs
+        - events
+    dataRangeItem:
+      type: object
+      properties:
+        start:
+          $ref: '#/components/schemas/dataPoint'
+        end:
+          $ref: '#/components/schemas/dataPoint'
+      required:
+        - start
+        - end
+    device:
+      type: object
+      properties:
+        transmitterGeneration:
+          type: string
+        displayDevice:
+          type: string
+        lastUploadDate:
+          type: string
+        alertScheduleList:
+          type: array
+          items:
+            $ref: '#/components/schemas/alertScheduleSetting'
+          x-cadl-name: alertScheduleSetting[]
+      required:
+        - displayDevice
+        - lastUploadDate
+        - alertScheduleList
+    egv:
+      type: object
+      properties:
+        systemTime:
+          type: string
+        displayTime:
+          type: string
+        value:
+          type: number
+          format: float
+        trend:
+          type: number
+          format: float
+        trendRate:
+          type: number
+          format: float
+      required:
+        - systemTime
+        - displayTime
+        - value
+        - trend
+        - trendRate
+    egvRange:
+      type: object
+      properties:
+        name:
+          type: string
+          description: >-
+            Name of the EGV threshold used for calculations; one of the
+            following must be included: 'urgentLow', 'low', 'high'
+        bound:
+          type: number
+          format: float
+          description: >-
+            The value of the EGV threshold; must follow the rule: 'urgentLow' <
+            'low' < 'high'
+      required:
+        - name
+        - bound
+    egvs:
+      type: object
+      properties:
+        unit:
+          type: string
+        rateUnit:
+          type: string
+        egvs:
+          type: array
+          items:
+            $ref: '#/components/schemas/egv'
+          x-cadl-name: egv[]
+      required:
+        - unit
+        - rateUnit
+        - egvs
+    event:
+      type: object
+      properties:
+        systemTime:
+          type: string
+        displayTime:
+          type: string
+        eventType:
+          type: string
+        eventSubType:
+          type: string
+        value:
+          type: number
+          format: float
+        unit:
+          type: string
+        eventId:
+          type: string
+        eventStatus:
+          type: string
+      required:
+        - systemTime
+        - displayTime
+        - eventType
+        - eventSubType
+        - eventId
+        - eventStatus
+    statistics:
+      type: object
+      properties:
+        hypoglycemiaRisk:
+          type: string
+          description: Risk for the patient to have future hypoglycemic events (nullable)
+        min:
+          type: number
+          format: float
+          description: Minimum of all EGV data for given date range
+        max:
+          type: number
+          format: float
+          description: Maximum of all EGV data for given date range
+        mean:
+          type: number
+          format: float
+          description: Mean of all EGV data for given date range
+        median:
+          type: number
+          format: float
+          description: Median of all EGV data for given date range
+        variance:
+          type: number
+          format: float
+          description: Statistical variance of glucose level for given date range
+        stdDev:
+          type: number
+          format: float
+          description: Standard deviation of all EGV data for given date range
+        sum:
+          type: number
+          format: float
+          description: Sum of all EGV data for given date range
+        q1:
+          type: number
+          format: float
+          description: First quartile of all EGV data for given date range
+        q2:
+          type: number
+          format: float
+          description: Second quartile of all EGV data for given date range
+        q3:
+          type: number
+          format: float
+          description: Third quartile of all EGV data for given date range
+        utilizationPercent:
+          type: number
+          format: float
+          description: Percent CGM sensor was utilized for given date range
+        meanDailyCalibrations:
+          type: number
+          format: float
+          description: Mean number of calibrations per day for given date range
+        nDays:
+          type: integer
+          format: int32
+          description: >-
+            Number of calendar days contributing data to the statistics
+            calculations; only days containing EGV data are included in this
+            count
+        nValues:
+          type: integer
+          format: int32
+          description: Total number of EGV observations for given date range
+        nUrgentLow:
+          type: integer
+          format: int32
+          description: >-
+            Number of EGV observations below urgentLow bound (exclusive)
+            specified in egvRanges array
+        nBelowRange:
+          type: integer
+          format: int32
+          description: >-
+            Number of EGV observations below low bound (exclusive) and above
+            urgentLow bound (inclusive) specified in egvRanges array)
+        nWithinRange:
+          type: integer
+          format: int32
+          description: >-
+            Number of EGV observations between high bound (inclusive) and above
+            low bound (inclusive) specified in egvRanges array
+        nAboveRange:
+          type: integer
+          format: int32
+          description: >-
+            Number of EGV observations above high bound (exclusive) specified in
+            egvRanges array
+        percentUrgentLow:
+          type: number
+          format: float
+          description: >-
+            Percentage of EGV observations below urgentLow bound (exclusive)
+            specified in egvRanges array
+        percentBelowRange:
+          type: number
+          format: float
+          description: >-
+            Percentage of EGV observations below low bound (exclusive) and above
+            urgentLow bound (inclusive) specified in egvRanges array
+        percentWithinRange:
+          type: number
+          format: float
+          description: >-
+            Percentage of EGV observations between high bound (inclusive) and
+            above low bound (inclusive) specified in egvRanges array
+        percentAboveRange:
+          type: number
+          format: float
+          description: >-
+            Percentage of EGV observations above high bound (exclusive)
+            specified in egvRanges array
+      required:
+        - min
+        - max
+        - mean
+        - median
+        - variance
+        - stdDev
+        - sum
+        - q1
+        - q2
+        - q3
+        - utilizationPercent
+        - meanDailyCalibrations
+        - nDays
+        - nValues
+        - nUrgentLow
+        - nBelowRange
+        - nWithinRange
+        - nAboveRange
+        - percentUrgentLow
+        - percentBelowRange
+        - percentWithinRange
+        - percentAboveRange
+    statisticsRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Reference name for the time window
+        startTime:
+          type: string
+          description: Beginning of the time window
+        endTime:
+          type: string
+          description: End of the time window
+        egvRanges:
+          type: array
+          items:
+            $ref: '#/components/schemas/egvRange'
+          x-cadl-name: egvRange[]
+          description: >-
+            Array containing the minimum and maximum EGV defining the target
+            range
+      required:
+        - name
+        - startTime
+        - endTime
+        - egvRanges
+servers:
+  - url: https://api.dexcom.com
+    description: Dexcom API
+    variables: {}

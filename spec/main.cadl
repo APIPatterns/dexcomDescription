@@ -1,0 +1,202 @@
+import "@cadl-lang/rest";
+import "@cadl-lang/openapi";
+using Cadl.Http;
+
+@service()
+@server("https://api.dexcom.com", "Dexcom API")
+@route("/v2/users/self/")
+namespace Dexcom {
+
+    // egvs
+    @route("egvs")
+    @get op getEGVs(
+        @query("startDate") startDate: string,
+        @query("endDate") endDate: string,
+    ): egvs;
+
+    // Calibrations
+    @route("calibrations")
+    @get op getCalibrations(
+      @query("startDate") startDate: string,
+      @query("endDate") endDate: string,
+    ): calibration[];
+
+    // DataRange
+    @route("dataRange")
+    @get op getDataRange(): dataRange;
+
+    // Devices
+    @route("devices")
+    @get op getDevices(): device[];
+
+    // events
+    @route("events")
+    @get op getEvents(
+        @query("startDate") startDate: string,
+        @query("endDate") endDate: string,
+    ): event[];
+
+    // statistics
+    @route("statistics")
+    @post op getStatistics(@body statisticsRequests: statisticsRequest[],
+        @query("startDate") startDate: string,
+        @query("endDate") endDate: string,
+    ): statistics;
+}
+
+model statisticsRequest {
+    name: string;
+    startTime: string;
+    endTime: string;
+    egvRanges: egvRange[];
+}
+@@doc(statisticsRequest.name, "Reference name for the time window")
+@@doc(statisticsRequest.startTime, "Beginning of the time window")
+@@doc(statisticsRequest.endTime, "End of the time window")
+@@doc(statisticsRequest.egvRanges, "Array containing the minimum and maximum EGV defining the target range")
+
+model egvRange {
+    name: string;
+    bound: float32;
+}   
+@@doc(egvRange.name, "Name of the EGV threshold used for calculations; one of the following must be included: 'urgentLow', 'low', 'high'")
+@@doc(egvRange.bound, "The value of the EGV threshold; must follow the rule: 'urgentLow' < 'low' < 'high'")
+
+model statistics {
+    hypoglycemiaRisk?: string;
+    min: float32;
+    max: float32;
+    mean: float32;
+    median: float32;
+    variance: float32;
+    stdDev: float32;
+    sum: float32;
+    q1: float32;
+    q2: float32;
+    q3: float32;
+    utilizationPercent: float32;
+    meanDailyCalibrations: float32;
+    nDays: int32;
+    nValues: int32;
+    nUrgentLow: int32;
+    nBelowRange: int32;
+    nWithinRange: int32;
+    nAboveRange: int32;
+    percentUrgentLow: float32;
+    percentBelowRange: float32;
+    percentWithinRange: float32;
+    percentAboveRange: float32;
+}
+@@doc(statistics.hypoglycemiaRisk, "Risk for the patient to have future hypoglycemic events (nullable)")
+@@doc(statistics.min, "Minimum of all EGV data for given date range")
+@@doc(statistics.max, "Maximum of all EGV data for given date range")
+@@doc(statistics.mean, "Mean of all EGV data for given date range")
+@@doc(statistics.median, "Median of all EGV data for given date range")
+@@doc(statistics.variance, "Statistical variance of glucose level for given date range")
+@@doc(statistics.stdDev, "Standard deviation of all EGV data for given date range")
+@@doc(statistics.sum, "Sum of all EGV data for given date range")
+@@doc(statistics.q1, "First quartile of all EGV data for given date range")
+@@doc(statistics.q2, "Second quartile of all EGV data for given date range")
+@@doc(statistics.q3, "Third quartile of all EGV data for given date range")
+@@doc(statistics.utilizationPercent, "Percent CGM sensor was utilized for given date range")
+@@doc(statistics.meanDailyCalibrations, "Mean number of calibrations per day for given date range")
+@@doc(statistics.nDays, "Number of calendar days contributing data to the statistics calculations; only days containing EGV data are included in this count")
+@@doc(statistics.nValues, "Total number of EGV observations for given date range")
+@@doc(statistics.nUrgentLow, "Number of EGV observations below urgentLow bound (exclusive) specified in egvRanges array")
+@@doc(statistics.nBelowRange, "Number of EGV observations below low bound (exclusive) and above urgentLow bound (inclusive) specified in egvRanges array)")
+@@doc(statistics.nWithinRange, "Number of EGV observations between high bound (inclusive) and above low bound (inclusive) specified in egvRanges array")
+@@doc(statistics.nAboveRange, "Number of EGV observations above high bound (exclusive) specified in egvRanges array")
+@@doc(statistics.percentUrgentLow, "Percentage of EGV observations below urgentLow bound (exclusive) specified in egvRanges array")
+@@doc(statistics.percentBelowRange, "Percentage of EGV observations below low bound (exclusive) and above urgentLow bound (inclusive) specified in egvRanges array")
+@@doc(statistics.percentWithinRange, "Percentage of EGV observations between high bound (inclusive) and above low bound (inclusive) specified in egvRanges array")
+@@doc(statistics.percentAboveRange, "Percentage of EGV observations above high bound (exclusive) specified in egvRanges array")
+
+model event {
+    systemTime: string;
+    displayTime: string;
+    eventType: string;
+    eventSubType: string;
+    value?: float32;
+    unit?: string;
+    eventId: string;
+    eventStatus: string;
+}
+
+model device {
+    transmitterGeneration?: string;
+    displayDevice: string;
+    lastUploadDate: string;
+    alertScheduleList: alertScheduleSetting[];
+}
+
+
+model alertScheduleSetting {
+    alertScheduleName: string;
+    isEnabled: boolean;
+    isDefaultSchedule: boolean;
+    startTime: string;
+    endTime: string;
+    daysOfWeek: string[];
+}
+@@doc(alertScheduleSetting.alertScheduleName, "Name of the alert schedule")
+@@doc(alertScheduleSetting.isEnabled, "Describes whether the user has the alert schedule enabled on their display device")
+@@doc(alertScheduleSetting.isDefaultSchedule, "The default schedule is the alert schedule used in the absence of other applicable alert schedules")
+@@doc(alertScheduleSetting.startTime, "The time each day when the alert schedule begins corresponds to the device's display time")
+@@doc(alertScheduleSetting.endTime, "The time each day when the alert schedule begins corresponds to the device's display time")
+@@doc(alertScheduleSetting.daysOfWeek, "An array containing the days of the week this alert schedule value applies to; this array must contain one (or more) of the following strings in English: 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday' and/or 'saturday'")
+
+
+model alertSetting {
+    alertName: string;
+    value?: float32;
+    unit?: string;
+    snooze?: float32;
+    enabled: boolean;
+    systemTime: string;
+    displayTime: string;
+}
+@@doc(alertSetting.alertName, "Name of alert")
+@@doc(alertSetting.value, "The value at which the alert is set (nullable)")
+@@doc(alertSetting.unit, "Unit of measurement for the alert value (nullable)")
+@@doc(alertSetting.snooze, "Time (in minutes) before resuming alarming after the alert has been acknowledged and cleared (nullable)")
+@@doc(alertSetting.enabled, "Indication of whether or not the alert is enabled on the device")
+@@doc(alertSetting.systemTime, "Time according to the system clock when alert setting was last adjusted by the user; nominally UTC")
+@@doc(alertSetting.displayTime, "Display time when alert setting was last adjusted by the user")
+
+
+model dataRange {
+    calibrations: dataRangeItem;
+    egvs: dataRangeItem;
+    events: dataRangeItem;
+}
+
+model dataRangeItem {
+    start: dataPoint;
+    end: dataPoint;
+}
+
+model dataPoint {
+    systemTime: string;
+    displayTime: string;
+}
+
+model calibration {
+  systemTime: string;
+  displayTime: string;
+  value: float32;
+  unit: string;
+}
+
+model egvs {
+    unit: string;
+    rateUnit: string;
+    egvs: egv[];
+}
+
+model egv {
+  systemTime: string;
+  displayTime: string;
+  value: float32;
+  trend: float32;
+  trendRate: float32;
+}

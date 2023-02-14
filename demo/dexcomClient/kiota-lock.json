@@ -1,0 +1,29 @@
+{
+  "descriptionHash": "AFB70E1F8B2BDD5E3967633CCFD5BE012E03D3B9803B9CEBA6B802A1F346D36B2688CE99BF1082671827C6F8539DBCA0A20B527C8B2965A18DCD08DD70EA52E2",
+  "descriptionLocation": "C:\\Users\\darrmi\\src\\github\\darrelmiller\\dexcom\\.\\spec\\cadl-output\\openapi.yaml",
+  "lockFileVersion": "1.0.0",
+  "kiotaVersion": "0.11.1-preview",
+  "clientClassName": "DexcomClient",
+  "clientNamespaceName": "Dexcom",
+  "language": "CSharp",
+  "usesBackingStore": false,
+  "includeAdditionalData": true,
+  "serializers": [
+    "Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory",
+    "Microsoft.Kiota.Serialization.Text.TextSerializationWriterFactory",
+    "Microsoft.Kiota.Serialization.Form.FormSerializationWriterFactory"
+  ],
+  "deserializers": [
+    "Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory",
+    "Microsoft.Kiota.Serialization.Text.TextParseNodeFactory",
+    "Microsoft.Kiota.Serialization.Form.FormParseNodeFactory"
+  ],
+  "structuredMimeTypes": [
+    "application/json",
+    "text/plain",
+    "application/x-www-form-urlencoded"
+  ],
+  "includePatterns": [],
+  "excludePatterns": [],
+  "disabledValidationRules": []
+}
