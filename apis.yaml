@@ -16,7 +16,7 @@ apis:
         properties:
             - 
                 type: X-openapi
-                url: 'https://github.dev/darrelmiller/dexcom/blob/main/spec/cadl-output/openapi.yaml'
+                url: 'https://raw.githubusercontent.com/darrelmiller/dexcom/main/spec/cadl-output/openapi.yaml'
 
 maintainers:
     - 
